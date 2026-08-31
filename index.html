@@ -1,415 +1,272 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎱 Control de Billar</title><style>
-*{box-sizing:border-box}
-body{
+<title>🎱 Control de Billar</title>
+
+<style>
+*{
+    box-sizing:border-box;
     margin:0;
-    padding:15px;
+    padding:0;
     font-family:Arial,sans-serif;
-    background:#f4f4f4;
-    color:#222;
 }
-h1{text-align:center}
-h2{text-align:center;font-size:20px}
-.dashboard{
-    background:#fff;
+
+body{
+    background:#f2f4f7;
+    color:#222;
+    padding:15px;
+}
+
+h1{
+    text-align:center;
+    margin:10px 0 5px;
+}
+
+.subtitulo{
+    text-align:center;
+    color:#666;
+    margin-bottom:20px;
+}
+
+.total{
+    background:#168a3d;
+    color:white;
+    border-radius:15px;
+    padding:20px;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.total h2{
+    font-size:18px;
+}
+
+.total-monto{
+    font-size:35px;
+    font-weight:bold;
+    margin-top:5px;
+}
+
+.contadores{
+    background:white;
     padding:15px;
     border-radius:12px;
-    margin-bottom:15px;
     text-align:center;
+    margin-bottom:20px;
+    font-size:18px;
 }
-.total{
-    font-size:32px;
-    font-weight:bold;
-}
+
 .mesas{
     display:grid;
     grid-template-columns:1fr;
     gap:15px;
 }
+
 .mesa{
     background:white;
     border-radius:15px;
     padding:20px;
-    text-align:center;
-    box-shadow:0 3px 10px #bbb;
-    border-top:7px solid #4caf50;
+    box-shadow:0 3px 10px #0002;
+    border-top:7px solid #168a3d;
 }
-.mesa.ocupada{border-top-color:#f44336}
-.estado{
-    font-size:20px;
+
+.mesa.ocupada{
+    border-top-color:#e53935;
+}
+
+.titulo-mesa{
+    font-size:26px;
     font-weight:bold;
-    margin:10px;
+    text-align:center;
 }
+
+.estado{
+    text-align:center;
+    margin:10px 0;
+    font-weight:bold;
+}
+
+.libre{
+    color:#168a3d;
+}
+
+.ocupada{
+    color:#e53935;
+}
+
+.inicio{
+    text-align:center;
+    font-size:18px;
+    margin:10px 0;
+}
+
 .cronometro{
+    text-align:center;
     font-size:30px;
     font-weight:bold;
-    margin:15px;
+    margin:15px 0;
+    color:#1976d2;
 }
+
 button{
     width:100%;
-    padding:15px;
-    margin-top:8px;
     border:0;
     border-radius:10px;
+    padding:16px;
+    margin-top:8px;
     font-size:18px;
     font-weight:bold;
     color:white;
 }
-.iniciar{background:#4caf50}
-.manual{background:#ff9800}
-.finalizar{background:#f44336}
-.secundario{background:#555}
+
+.iniciar{
+    background:#168a3d;
+}
+
+.manual{
+    background:#f39c12;
+}
+
+.finalizar{
+    background:#e53935;
+}
+
 .historial{
-    margin-top:25px;
+    margin-top:30px;
 }
-.registro{
+
+.historial h2{
+    margin-bottom:15px;
+}
+
+.partida{
     background:white;
+    border-radius:12px;
     padding:15px;
-    border-radius:10px;
     margin-bottom:10px;
+    box-shadow:0 2px 6px #0001;
 }
-.precio{
+
+.partida strong{
+    font-size:19px;
+}
+
+.monto{
+    color:#168a3d;
     font-size:22px;
     font-weight:bold;
-    color:#4caf50;
+    float:right;
 }
-input{
+
+.borrar{
+    background:#555;
+    margin-top:20px;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#0009;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:10;
+}
+
+.modal.activo{
+    display:flex;
+}
+
+.modal-contenido{
+    background:white;
+    border-radius:15px;
+    padding:25px;
     width:100%;
-    padding:12px;
-    font-size:20px;
+    max-width:400px;
+    text-align:center;
+}
+
+.modal-contenido h2{
+    margin-bottom:15px;
+}
+
+.modal-contenido p{
+    font-size:18px;
     margin:10px 0;
 }
+
+input{
+    width:100%;
+    padding:15px;
+    font-size:24px;
+    text-align:center;
+    margin:15px 0;
+    border:2px solid #ccc;
+    border-radius:10px;
+}
+
+.confirmar{
+    background:#1976d2;
+}
+
+.cancelar{
+    background:#777;
+}
+
+.precio{
+    font-size:38px;
+    font-weight:bold;
+    color:#168a3d;
+    margin:15px;
+}
+
 @media(min-width:600px){
-    .mesas{grid-template-columns:1fr 1fr}
-}
-</style></head><body><h1>🎱 CONTROL DE BILLAR</h1>
-<h2>4 MESAS</h2><div class="dashboard">
-    <div>💰 TOTAL DEL DÍA</div>
-    <div class="total" id="total">S/ 0.00</div>
-    <div>🔴 Ocupadas: <span id="ocupadas">0</span> / 4</div>
-    <div>🟢 Libres: <span id="libres">4</span> / 4</div>
-</div><div class="mesas" id="mesas"></div><div class="historial">
-<h2>📋 HISTORIAL DEL DÍA</h2>
-<div id="historial"></div><button class="secundario" id="borrar">
-🗑️ BORRAR HISTORIAL
-</button>
-</div><script>
-
-const precios=[
-    {min:1,max:10,precio:1},
-    {min:11,max:15,precio:1.5},
-    {min:16,max:23,precio:2},
-    {min:24,max:25,precio:3},
-    {min:26,max:30,precio:4},
-    {min:31,max:35,precio:4.5},
-    {min:36,max:40,precio:5},
-    {min:41,max:45,precio:5.5},
-    {min:46,max:50,precio:6},
-    {min:51,max:55,precio:7},
-    {min:56,max:59,precio:8}
-];
-
-let mesas=JSON.parse(localStorage.getItem("mesas_billar"));
-
-if(!mesas){
-    mesas={};
-    for(let i=1;i<=4;i++){
-        mesas[i]={ocupada:false,inicio:null};
+    .mesas{
+        grid-template-columns:1fr 1fr;
     }
 }
+</style>
+</head>
 
-let historial=JSON.parse(localStorage.getItem("historial_billar")) || [];
+<body>
 
-function guardar(){
-    localStorage.setItem("mesas_billar",JSON.stringify(mesas));
-    localStorage.setItem("historial_billar",JSON.stringify(historial));
-}
+<h1>🎱 CONTROL DE BILLAR</h1>
+<div class="subtitulo">Control de 4 mesas</div>
 
-function calcularPrecio(minutos){
+<div class="total">
+    <h2>💰 TOTAL DEL DÍA</h2>
+    <div class="total-monto" id="total">S/ 0.00</div>
+</div>
 
-    if(minutos<=0)return 0;
+<div class="contadores">
+    🔴 Ocupadas: <span id="ocupadas">0</span>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    🟢 Libres: <span id="libres">4</span>
+</div>
 
-    let horas=Math.floor(minutos/60);
-    let resto=minutos%60;
+<div class="mesas" id="mesas"></div>
 
-    let total=horas*8;
+<div class="historial">
+    <h2>📋 HISTORIAL DEL DÍA</h2>
+    <div id="historial"></div>
+    <button class="borrar" onclick="borrarHistorial()">🗑️ BORRAR HISTORIAL</button>
+</div>
 
-    if(resto>0){
 
-        for(let p of precios){
+<!-- MODAL HORA MANUAL -->
+<div class="modal" id="modalManual">
+    <div class="modal-contenido">
+        <h2>⏱️ Inicio manual</h2>
+        <p>Selecciona la hora en que empezó la partida.</p>
 
-            if(resto>=p.min && resto<=p.max){
-                total+=p.precio;
-                break;
-            }
+        <input type="time" id="horaManual">
 
-        }
+        <button class="confirmar" onclick="confirmarManual()">
+            INICIAR
+        </button>
 
-    }
-
-    return total;
-}
-
-function hora(timestamp){
-
-    let d=new Date(timestamp);
-
-    return d.toLocaleTimeString("es-PE",{
-        hour:"2-digit",
-        minute:"2-digit",
-        hour12:true
-    });
-}
-
-function duracion(inicio){
-
-    let minutos=Math.floor((Date.now()-inicio)/60000);
-
-    let h=Math.floor(minutos/60);
-    let m=minutos%60;
-
-    return {
-        minutos:minutos,
-        texto:h>0 ? h+" h "+m+" min" : m+" min"
-    };
-}
-
-function iniciar(id){
-
-    if(mesas[id].ocupada)return;
-
-    mesas[id].ocupada=true;
-    mesas[id].inicio=Date.now();
-
-    guardar();
-    mostrar();
-}
-
-function inicioManual(id){
-
-    let valor=prompt(
-        "Escribe la hora de inicio.\nEjemplo: 08:00"
-    );
-
-    if(!valor)return;
-
-    let partes=valor.split(":");
-
-    if(partes.length!==2){
-        alert("Hora incorrecta. Usa HH:MM");
-        return;
-    }
-
-    let h=parseInt(partes[0]);
-    let m=parseInt(partes[1]);
-
-    if(isNaN(h)||isNaN(m)||h<0||h>23||m<0||m>59){
-        alert("Hora incorrecta.");
-        return;
-    }
-
-    let ahora=new Date();
-
-    let inicio=new Date(
-        ahora.getFullYear(),
-        ahora.getMonth(),
-        ahora.getDate(),
-        h,
-        m,
-        0
-    );
-
-    if(inicio>ahora){
-        inicio.setDate(inicio.getDate()-1);
-    }
-
-    mesas[id].ocupada=true;
-    mesas[id].inicio=inicio.getTime();
-
-    guardar();
-    mostrar();
-}
-
-function finalizar(id){
-
-    if(!mesas[id].ocupada)return;
-
-    let inicio=mesas[id].inicio;
-    let salida=Date.now();
-
-    let d=duracion(inicio);
-    let precio=calcularPrecio(d.minutos);
-
-    let confirmar=confirm(
-        "MESA "+id+
-        "\n\nInicio: "+hora(inicio)+
-        "\nSalida: "+hora(salida)+
-        "\nTiempo: "+d.texto+
-        "\n\nTOTAL: S/ "+precio.toFixed(2)+
-        "\n\n¿Confirmar cobro?"
-    );
-
-    if(!confirmar)return;
-
-    historial.push({
-        mesa:id,
-        inicio:hora(inicio),
-        salida:hora(salida),
-        tiempo:d.texto,
-        minutos:d.minutos,
-        precio:precio
-    });
-
-    mesas[id].ocupada=false;
-    mesas[id].inicio=null;
-
-    guardar();
-    mostrar();
-}
-
-function mostrar(){
-
-    let contenedor=document.getElementById("mesas");
-    contenedor.innerHTML="";
-
-    let ocupadas=0;
-
-    for(let i=1;i<=4;i++){
-
-        let mesa=mesas[i];
-
-        if(mesa.ocupada)ocupadas++;
-
-        let div=document.createElement("div");
-
-        div.className="mesa "+(mesa.ocupada?"ocupada":"");
-
-        if(mesa.ocupada){
-
-            let d=duracion(mesa.inicio);
-            let precio=calcularPrecio(d.minutos);
-
-            div.innerHTML=`
-                <h2>🎱 MESA ${i}</h2>
-                <div class="estado">🔴 OCUPADA</div>
-
-                <div>Inicio: <b>${hora(mesa.inicio)}</b></div>
-
-                <div class="cronometro">
-                    ${d.texto}
-                </div>
-
-                <div>💰 Actual: <b>S/ ${precio.toFixed(2)}</b></div>
-
-                <button class="finalizar"
-                onclick="finalizar(${i})">
-                ⏹️ FINALIZAR
-                </button>
-            `;
-
-        }else{
-
-            div.innerHTML=`
-                <h2>🎱 MESA ${i}</h2>
-
-                <div class="estado">🟢 LIBRE</div>
-
-                <button class="iniciar"
-                onclick="iniciar(${i})">
-                ▶️ INICIAR
-                </button>
-
-                <button class="manual"
-                onclick="inicioManual(${i})">
-                ⏱️ INICIO MANUAL
-                </button>
-            `;
-        }
-
-        contenedor.appendChild(div);
-    }
-
-    document.getElementById("ocupadas").textContent=ocupadas;
-    document.getElementById("libres").textContent=4-ocupadas;
-
-    mostrarHistorial();
-}
-
-function mostrarHistorial(){
-
-    let contenedor=document.getElementById("historial");
-
-    contenedor.innerHTML="";
-
-    let total=0;
-
-    historial.forEach(x=>{
-        total+=x.precio;
-    });
-
-    document.getElementById("total").textContent=
-        "S/ "+total.toFixed(2);
-
-    if(historial.length===0){
-
-        contenedor.innerHTML=
-        "<p style='text-align:center'>No hay partidas todavía.</p>";
-
-        return;
-    }
-
-    [...historial].reverse().forEach(x=>{
-
-        let div=document.createElement("div");
-
-        div.className="registro";
-
-        div.innerHTML=`
-            <b>🎱 Mesa ${x.mesa}</b><br>
-            ${x.inicio} → ${x.salida}<br>
-            Tiempo: ${x.tiempo}<br>
-            <div class="precio">
-            S/ ${x.precio.toFixed(2)}
-            </div>
-        `;
-
-        contenedor.appendChild(div);
-    });
-}
-
-document.getElementById("borrar").addEventListener("click",function(){
-
-    if(historial.length===0){
-        alert("No hay historial para borrar.");
-        return;
-    }
-
-    if(confirm("¿Seguro que quieres borrar todo el historial?")){
-
-        historial=[];
-
-        guardar();
-        mostrar();
-    }
-
-});
-
-mostrar();
-
-setInterval(function(){
-
-    mostrar();
-
-},1000);
-
-<script>
-function iniciar(id) {
-    alert("Mesa " + id + " iniciada");
-}
-</script>
-
-</body>
-</html>
+        <button class="cancelar" onclick="cerrarManual()">
+            CANCEL      
