@@ -1,272 +1,775 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎱 Control de Billar</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0288d1">
+    <title>Control de Billar</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #222222;
+            --card-bg: #ffffff;
+            --primary: #0288d1;
+            --success: #2e7d32;
+            --danger: #c62828;
+            --warning: #ef6c00;
+            --border: #cccccc;
+            --modal-bg: rgba(0, 0, 0, 0.6);
+        }
 
-<style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-    font-family:Arial,sans-serif;
-}
+        body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #f0f0f0;
+            --card-bg: #1e1e1e;
+            --border: #333333;
+            --modal-bg: rgba(0, 0, 0, 0.85);
+        }
 
-body{
-    background:#f2f4f7;
-    color:#222;
-    padding:15px;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-h1{
-    text-align:center;
-    margin:10px 0 5px;
-}
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 15px;
+            padding-bottom: 60px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-.subtitulo{
-    text-align:center;
-    color:#666;
-    margin-bottom:20px;
-}
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            padding-top: 10px;
+        }
 
-.total{
-    background:#168a3d;
-    color:white;
-    border-radius:15px;
-    padding:20px;
-    text-align:center;
-    margin-bottom:15px;
-}
+        h1 { font-size: 26px; }
+        h2 { font-size: 15px; font-weight: normal; opacity: 0.8; }
 
-.total h2{
-    font-size:18px;
-}
+        .theme-toggle {
+            position: absolute;
+            top: 5px;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-color);
+            font-size: 20px;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.total-monto{
-    font-size:35px;
-    font-weight:bold;
-    margin-top:5px;
-}
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
 
-.contadores{
-    background:white;
-    padding:15px;
-    border-radius:12px;
-    text-align:center;
-    margin-bottom:20px;
-    font-size:18px;
-}
+        @media (min-width: 480px) {
+            .dashboard-stats { grid-template-columns: 1fr 1fr; }
+        }
 
-.mesas{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:15px;
-}
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
 
-.mesa{
-    background:white;
-    border-radius:15px;
-    padding:20px;
-    box-shadow:0 3px 10px #0002;
-    border-top:7px solid #168a3d;
-}
+        .stat-card.main-total {
+            background-color: var(--success);
+            color: #ffffff;
+            border: none;
+        }
 
-.mesa.ocupada{
-    border-top-color:#e53935;
-}
+        .stat-card.main-total h3 { font-size: 16px; margin-bottom: 5px; }
+        .stat-card.main-total .amount { font-size: 30px; font-weight: bold; }
 
-.titulo-mesa{
-    font-size:26px;
-    font-weight:bold;
-    text-align:center;
-}
+        .table-counts {
+            display: flex;
+            justify-content: space-around;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.5;
+        }
 
-.estado{
-    text-align:center;
-    margin:10px 0;
-    font-weight:bold;
-}
+        .tables-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
 
-.libre{
-    color:#168a3d;
-}
+        @media (min-width: 550px) {
+            .tables-grid { grid-template-columns: 1fr 1fr; }
+        }
 
-.ocupada{
-    color:#e53935;
-}
+        .table-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+        }
 
-.inicio{
-    text-align:center;
-    font-size:18px;
-    margin:10px 0;
-}
+        .table-card.free { border-top: 6px solid var(--success); }
+        .table-card.occupied { border-top: 6px solid var(--danger); }
 
-.cronometro{
-    text-align:center;
-    font-size:30px;
-    font-weight:bold;
-    margin:15px 0;
-    color:#1976d2;
-}
+        .table-title { font-size: 22px; font-weight: bold; margin-bottom: 8px; }
 
-button{
-    width:100%;
-    border:0;
-    border-radius:10px;
-    padding:16px;
-    margin-top:8px;
-    font-size:18px;
-    font-weight:bold;
-    color:white;
-}
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
 
-.iniciar{
-    background:#168a3d;
-}
+        .free .status-badge { background-color: #e8f5e9; color: #2e7d32; }
+        body.dark-mode .free .status-badge { background-color: #1b5e20; color: #ffffff; }
 
-.manual{
-    background:#f39c12;
-}
+        .occupied .status-badge { background-color: #ffebee; color: #c62828; }
+        body.dark-mode .occupied .status-badge { background-color: #b71c1c; color: #ffffff; }
 
-.finalizar{
-    background:#e53935;
-}
+        .time-info { font-size: 16px; margin: 10px 0; }
 
-.historial{
-    margin-top:30px;
-}
+        .timer {
+            font-size: 26px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 8px 0 15px 0;
+            font-family: monospace;
+        }
 
-.historial h2{
-    margin-bottom:15px;
-}
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
 
-.partida{
-    background:white;
-    border-radius:12px;
-    padding:15px;
-    margin-bottom:10px;
-    box-shadow:0 2px 6px #0001;
-}
+        .btn-start { background-color: var(--success); color: white; }
+        .btn-manual { background-color: var(--warning); color: white; }
+        .btn-finish { background-color: var(--danger); color: white; padding: 15px; font-size: 18px; }
+        .btn-secondary { background-color: #666666; color: white; }
+        .btn-primary { background-color: var(--primary); color: white; }
 
-.partida strong{
-    font-size:19px;
-}
+        .section-title {
+            font-size: 20px;
+            margin: 25px 0 12px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 6px;
+        }
 
-.monto{
-    color:#168a3d;
-    font-size:22px;
-    font-weight:bold;
-    float:right;
-}
+        .list-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
 
-.borrar{
-    background:#555;
-    margin-top:20px;
-}
+        .list-item-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 17px;
+        }
 
-.modal{
-    display:none;
-    position:fixed;
-    inset:0;
-    background:#0009;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    z-index:10;
-}
+        .list-item-amount { color: var(--success); font-weight: bold; }
 
-.modal.activo{
-    display:flex;
-}
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--modal-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            padding: 15px;
+        }
 
-.modal-contenido{
-    background:white;
-    border-radius:15px;
-    padding:25px;
-    width:100%;
-    max-width:400px;
-    text-align:center;
-}
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
-.modal-contenido h2{
-    margin-bottom:15px;
-}
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 380px;
+            padding: 20px;
+            text-align: center;
+        }
 
-.modal-contenido p{
-    font-size:18px;
-    margin:10px 0;
-}
+        .modal-title { font-size: 22px; margin-bottom: 15px; font-weight: bold; }
 
-input{
-    width:100%;
-    padding:15px;
-    font-size:24px;
-    text-align:center;
-    margin:15px 0;
-    border:2px solid #ccc;
-    border-radius:10px;
-}
+        .modal-details {
+            text-align: left;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
 
-.confirmar{
-    background:#1976d2;
-}
+        .modal-price {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--success);
+            text-align: center;
+            margin: 15px 0;
+        }
 
-.cancelar{
-    background:#777;
-}
+        input[type="time"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 22px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            text-align: center;
+        }
 
-.precio{
-    font-size:38px;
-    font-weight:bold;
-    color:#168a3d;
-    margin:15px;
-}
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-group button { margin-bottom: 0; }
 
-@media(min-width:600px){
-    .mesas{
-        grid-template-columns:1fr 1fr;
-    }
-}
-</style>
+        #receipt-area { display: none; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #receipt-area, #receipt-area * { visibility: visible; }
+            #receipt-area {
+                display: block;
+                position: absolute;
+                left: 0; top: 0; width: 100%;
+                background: white; color: black;
+                padding: 20px;
+                font-family: monospace;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
-<h1>🎱 CONTROL DE BILLAR</h1>
-<div class="subtitulo">Control de 4 mesas</div>
+    <header>
+        <h1>🎱 CONTROL DE BILLAR</h1>
+        <h2>Gestión de 4 Mesas</h2>
+        <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀️</button>
+    </header>
 
-<div class="total">
-    <h2>💰 TOTAL DEL DÍA</h2>
-    <div class="total-monto" id="total">S/ 0.00</div>
-</div>
+    <div class="dashboard-stats">
+        <div class="stat-card main-total">
+            <h3>💵 TOTAL RECAUDADO HOY</h3>
+            <div class="amount" id="total-amount">S/ 0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="table-counts">
+                <div>🔴 Ocupadas: <span id="count-occupied">0</span>/4</div>
+                <div>🟢 Libres: <span id="count-free">4</span>/4</div>
+            </div>
+        </div>
+    </div>
 
-<div class="contadores">
-    🔴 Ocupadas: <span id="ocupadas">0</span>
-    &nbsp;&nbsp;|&nbsp;&nbsp;
-    🟢 Libres: <span id="libres">4</span>
-</div>
+    <div class="tables-grid" id="tables-container"></div>
 
-<div class="mesas" id="mesas"></div>
+    <div class="section-title">📊 RESUMEN DEL DÍA</div>
+    <div id="summary-container">
+        <div class="list-item">
+            <div class="list-item-header">
+                <span>Partidas jugadas:</span>
+                <span id="summary-count">0</span>
+            </div>
+            <div class="list-item-header" style="margin-top: 5px;">
+                <span>Total recaudado:</span>
+                <span id="summary-total" style="color: var(--success)">S/ 0.00</span>
+            </div>
+            <hr style="border:0; border-top: 1px solid var(--border); margin: 10px 0;">
+            <div id="summary-tables"></div>
+        </div>
+    </div>
 
-<div class="historial">
-    <h2>📋 HISTORIAL DEL DÍA</h2>
-    <div id="historial"></div>
-    <button class="borrar" onclick="borrarHistorial()">🗑️ BORRAR HISTORIAL</button>
-</div>
+    <div class="section-title">📋 HISTORIAL DE PARTIDAS</div>
+    <div id="history-container"></div>
 
+    <button class="btn-finish" style="margin-top: 20px;" onclick="promptClearHistory()">
+        🗑️ BORRAR HISTORIAL
+    </button>
 
-<!-- MODAL HORA MANUAL -->
-<div class="modal" id="modalManual">
-    <div class="modal-contenido">
-        <h2>⏱️ Inicio manual</h2>
-        <p>Selecciona la hora en que empezó la partida.</p>
+    <div class="modal-overlay" id="modal-manual">
+        <div class="modal-content">
+            <div class="modal-title" id="manual-title">MESA 1 - Inicio Manual</div>
+            <p style="margin-bottom: 15px;">Selecciona la hora de inicio:</p>
+            <input type="time" id="manual-time-input">
+            <div class="btn-group">
+                <button class="btn-secondary" onclick="closeModal('modal-manual')">CANCELAR</button>
+                <button class="btn-start" onclick="confirmManualStart()">INICIAR</button>
+            </div>
+        </div>
+    </div>
 
-        <input type="time" id="horaManual">
+    <div class="modal-overlay" id="modal-finish">
+        <div class="modal-content">
+            <div class="modal-title" id="finish-title">MESA 1</div>
+            <div class="modal-details" id="finish-details"></div>
+            <div class="modal-price" id="finish-price">S/ 0.00</div>
+            <div class="btn-group">
+                <button class="btn-secondary" onclick="closeModal('modal-finish')">CANCELAR</button>
+                <button class="btn-primary" onclick="confirmFinish()">CONFIRMAR COBRO</button>
+            </div>
+        </div>
+    </div>
 
-        <button class="confirmar" onclick="confirmarManual()">
-            INICIAR
-        </button>
+    <div class="modal-overlay" id="modal-receipt">
+        <div class="modal-content">
+            <div class="modal-title">🧾 COMPROBANTE</div>
+            <div class="modal-details" style="text-align: center;" id="receipt-details"></div>
+            <div class="btn-group">
+                <button class="btn-secondary" onclick="closeModal('modal-receipt')">CERRAR</button>
+                <button class="btn-primary" onclick="window.print()">🖨️ IMPRIMIR</button>
+            </div>
+        </div>
+    </div>
 
-        <button class="cancelar" onclick="cerrarManual()">
-            CANCEL      
+    <div class="modal-overlay" id="modal-clear">
+        <div class="modal-content">
+            <div class="modal-title">🗑️ BORRAR HISTORIAL</div>
+            <p style="margin-bottom: 20px;">¿Deseas eliminar todo el historial de hoy? Esta acción no se puede deshacer.</p>
+            <div class="btn-group">
+                <button class="btn-secondary" onclick="closeModal('modal-clear')">CANCELAR</button>
+                <button class="btn-finish" style="padding: 12px; font-size: 16px;" onclick="confirmClearHistory()">BORRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="receipt-area">
+        <h2>🎱 CONTROL DE BILLAR</h2>
+        <h3 id="print-table">MESA 1</h3>
+        <p id="print-start">Inicio: --:--</p>
+        <p id="print-end">Salida: --:--</p>
+        <p id="print-time">Tiempo: --</p>
+        <h2>TOTAL:</h2>
+        <h1 id="print-amount">S/ 0.00</h1>
+    </div>
+
+    <script>
+        var memoryStore = {};
+
+        function setStorage(key, value) {
+            var strVal = JSON.stringify(value);
+            memoryStore[key] = strVal;
+            try {
+                localStorage.setItem(key, strVal);
+            } catch (e1) {
+                try {
+                    sessionStorage.setItem(key, strVal);
+                } catch (e2) {}
+            }
+        }
+
+        function getStorage(key) {
+            var val = null;
+            try {
+                val = localStorage.getItem(key);
+            } catch (e1) {
+                try {
+                    val = sessionStorage.getItem(key);
+                } catch (e2) {}
+            }
+            if (!val) {
+                val = memoryStore[key] || null;
+            }
+            if (!val) return null;
+            try {
+                return JSON.parse(val);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function getInitialTables() {
+            return {
+                1: { occupied: false, startTime: null },
+                2: { occupied: false, startTime: null },
+                3: { occupied: false, startTime: null },
+                4: { occupied: false, startTime: null }
+            };
+        }
+
+        var tables = getInitialTables();
+        var historyData = [];
+        var isDarkMode = false;
+
+        var activeTableId = null;
+        var activeFinishedData = null;
+        var timerInterval = null;
+
+        function loadStorage() {
+            var savedTables = getStorage('billar_tables');
+            if (savedTables && typeof savedTables === 'object') {
+                tables = savedTables;
+            } else {
+                tables = getInitialTables();
+            }
+
+            var savedHistory = getStorage('billar_history');
+            if (Array.isArray(savedHistory)) {
+                historyData = savedHistory;
+            } else {
+                historyData = [];
+            }
+
+            var savedTheme = getStorage('billar_theme');
+            isDarkMode = (savedTheme === 'dark');
+        }
+
+        function saveStorage() {
+            setStorage('billar_tables', tables);
+            setStorage('billar_history', historyData);
+            setStorage('billar_theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        function calculateAmount(totalMinutes) {
+            if (totalMinutes < 1) totalMinutes = 1;
+            
+            var hours = Math.floor(totalMinutes / 60);
+            var mins = totalMinutes % 60;
+            var cost = hours * 8.00;
+
+            if (mins > 0) {
+                if (mins <= 10) cost += 1.00;
+                else if (mins <= 15) cost += 1.50;
+                else if (mins <= 23) cost += 2.00;
+                else if (mins <= 25) cost += 3.00;
+                else if (mins <= 30) cost += 4.00;
+                else if (mins <= 35) cost += 4.50;
+                else if (mins <= 40) cost += 5.00;
+                else if (mins <= 45) cost += 5.50;
+                else if (mins <= 50) cost += 6.00;
+                else if (mins <= 55) cost += 7.00;
+                else cost += 8.00;
+            }
+            return cost;
+        }
+
+        function formatMoney(amount) {
+            return 'S/ ' + Number(amount).toFixed(2);
+        }
+
+        function formatTimeAMPM(timestamp) {
+            var d = new Date(timestamp);
+            var h = d.getHours();
+            var m = d.getMinutes();
+            var ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            h = h ? h : 12;
+            m = m < 10 ? '0' + m : m;
+            return h + ':' + m + ' ' + ampm;
+        }
+
+        function getDurationParts(startMs, endMs) {
+            var diffMs = endMs - startMs;
+            if (diffMs < 0) diffMs = 0;
+            var totalMins = Math.floor(diffMs / 60000);
+            var h = Math.floor(totalMins / 60);
+            var m = totalMins % 60;
+            return { totalMins: totalMins, h: h, m: m, diffMs: diffMs };
+        }
+
+        function formatDurationText(h, m) {
+            if (h === 0) return m + ' min';
+            return h + ' h ' + m + ' min';
+        }
+
+        function formatStopwatch(diffMs) {
+            var totalSecs = Math.floor(diffMs / 1000);
+            var h = Math.floor(totalSecs / 3600);
+            var m = Math.floor((totalSecs % 3600) / 60);
+            var s = totalSecs % 60;
+            
+            var padH = h < 10 ? '0' + h : h;
+            var padM = m < 10 ? '0' + m : m;
+            var padS = s < 10 ? '0' + s : s;
+
+            return padH + ':' + padM + ':' + padS;
+        }
+
+        function startTable(id) {
+            if (tables[id].occupied) return;
+            tables[id].occupied = true;
+            tables[id].startTime = Date.now();
+            saveStorage();
+            renderAll();
+        }
+
+        function openManualStart(id) {
+            if (tables[id].occupied) return;
+            activeTableId = id;
+            document.getElementById('manual-title').innerText = 'MESA ' + id + ' - Inicio Manual';
+            
+            var now = new Date();
+            var hh = now.getHours() < 10 ? '0' + now.getHours() : now.getHours();
+            var mm = now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes();
+            document.getElementById('manual-time-input').value = hh + ':' + mm;
+            
+            openModal('modal-manual');
+        }
+
+        function confirmManualStart() {
+            var timeVal = document.getElementById('manual-time-input').value;
+            if (!timeVal) {
+                alert('Por favor, selecciona una hora.');
+                return;
+            }
+
+            var parts = timeVal.split(':');
+            var h = parseInt(parts[0], 10);
+            var m = parseInt(parts[1], 10);
+
+            var now = new Date();
+            var start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+
+            if (start > now) {
+                start.setDate(start.getDate() - 1);
+            }
+
+            tables[activeTableId].occupied = true;
+            tables[activeTableId].startTime = start.getTime();
+            saveStorage();
+            closeModal('modal-manual');
+            renderAll();
+        }
+
+        function openFinish(id) {
+            if (!tables[id].occupied) return;
+            activeTableId = id;
+            
+            var startMs = tables[id].startTime;
+            var endMs = Date.now();
+            var dur = getDurationParts(startMs, endMs);
+            var cost = calculateAmount(dur.totalMins);
+
+            activeFinishedData = {
+                id: Date.now(),
+                table: id,
+                startStr: formatTimeAMPM(startMs),
+                endStr: formatTimeAMPM(endMs),
+                durationStr: formatDurationText(dur.h, dur.m),
+                amount: cost
+            };
+
+            document.getElementById('finish-title').innerText = 'MESA ' + id;
+            document.getElementById('finish-details').innerHTML = 
+                '<p><strong>Hora inicio:</strong> ' + activeFinishedData.startStr + '</p>' +
+                '<p><strong>Hora salida:</strong> ' + activeFinishedData.endStr + '</p>' +
+                '<p><strong>Tiempo jugado:</strong> ' + activeFinishedData.durationStr + '</p>';
+            
+            document.getElementById('finish-price').innerText = formatMoney(cost);
+            openModal('modal-finish');
+        }
+
+        function confirmFinish() {
+            if (!activeFinishedData) return;
+
+            historyData.push(activeFinishedData);
+            
+            tables[activeTableId].occupied = false;
+            tables[activeTableId].startTime = null;
+            
+            saveStorage();
+            closeModal('modal-finish');
+            renderAll();
+            showReceipt(activeFinishedData);
+        }
+
+        function showReceipt(data) {
+            document.getElementById('receipt-details').innerHTML = 
+                '<h3 style="margin-bottom:8px;">MESA ' + data.table + '</h3>' +
+                '<p>Inicio: ' + data.startStr + '</p>' +
+                '<p>Salida: ' + data.endStr + '</p>' +
+                '<p>Tiempo: ' + data.durationStr + '</p>' +
+                '<h2 style="margin-top:12px;">TOTAL:</h2>' +
+                '<div style="font-size:26px; font-weight:bold; color:var(--success);">' + formatMoney(data.amount) + '</div>';
+            
+            document.getElementById('print-table').innerText = 'MESA ' + data.table;
+            document.getElementById('print-start').innerText = 'Inicio: ' + data.startStr;
+            document.getElementById('print-end').innerText = 'Salida: ' + data.endStr;
+            document.getElementById('print-time').innerText = 'Tiempo: ' + data.durationStr;
+            document.getElementById('print-amount').innerText = formatMoney(data.amount);
+
+            openModal('modal-receipt');
+        }
+
+        function promptClearHistory() {
+            openModal('modal-clear');
+        }
+
+        function confirmClearHistory() {
+            historyData = [];
+            saveStorage();
+            closeModal('modal-clear');
+            renderAll();
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function applyTheme() {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-btn').innerText = '🌙';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('theme-btn').innerText = '☀️';
+            }
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            applyTheme();
+            saveStorage();
+        }
+
+        function renderTables() {
+            var container = document.getElementById('tables-container');
+            container.innerHTML = '';
+            
+            var occupiedCount = 0;
+
+            for (var i = 1; i <= 4; i++) {
+                var table = tables[i];
+                var card = document.createElement('div');
+                card.className = 'table-card ' + (table.occupied ? 'occupied' : 'free');
+                
+                if (table.occupied) occupiedCount++;
+
+                var html = '<div class="table-title">MESA ' + i + '</div>';
+                html += '<div class="status-badge">' + (table.occupied ? '🔴 OCUPADA' : '🟢 LIBRE') + '</div>';
+
+                if (table.occupied) {
+                    html += '<div class="time-info">Inicio: <strong>' + formatTimeAMPM(table.startTime) + '</strong></div>';
+                    html += '<div class="timer" id="timer-' + i + '">00:00:00</div>';
+                    html += '<button class="btn-finish" onclick="openFinish(' + i + ')">⏹️ FINALIZAR</button>';
+                } else {
+                    html += '<div style="margin-top: 15px;">';
+                    html += '<button class="btn-start" onclick="startTable(' + i + ')">▶️ INICIAR</button>';
+                    html += '<button class="btn-manual" onclick="openManualStart(' + i + ')">⏱️ INICIO MANUAL</button>';
+                    html += '</div>';
+                }
+
+                card.innerHTML = html;
+                container.appendChild(card);
+            }
+
+            document.getElementById('count-occupied').innerText = occupiedCount;
+            document.getElementById('count-free').innerText = 4 - occupiedCount;
+        }
+
+        function updateTimers() {
+            var now = Date.now();
+            for (var i = 1; i <= 4; i++) {
+                if (tables[i] && tables[i].occupied) {
+                    var el = document.getElementById('timer-' + i);
+                    if (el) {
+                        var diff = now - tables[i].startTime;
+                        el.innerText = formatStopwatch(diff > 0 ? diff : 0);
+                    }
+                }
+            }
+        }
+
+        function renderHistoryAndSummary() {
+            var histContainer = document.getElementById('history-container');
+            histContainer.innerHTML = '';
+            
+            var totalAmount = 0;
+            var tableTotals = { 1: 0, 2: 0, 3: 0, 4: 0 };
+
+            if (historyData.length === 0) {
+                histContainer.innerHTML = '<p style="text-align:center; color:gray;">No hay partidas registradas hoy.</p>';
+            } else {
+                for (var i = historyData.length - 1; i >= 0; i--) {
+                    var item = historyData[i];
+                    totalAmount += item.amount;
+                    if (tableTotals[item.table] !== undefined) {
+                        tableTotals[item.table] += item.amount;
+                    }
+
+                    var div = document.createElement('div');
+                    div.className = 'list-item';
+                    
+                    var itemHtml = '<div class="list-item-header">' +
+                        '<span>Mesa ' + item.table + '</span>' +
+                        '<span class="list-item-amount">' + formatMoney(item.amount) + '</span>' +
+                        '</div>' +
+                        '<div style="color: gray; font-size:14px; margin-top:4px;">' +
+                        item.startStr + ' - ' + item.endStr + ' (' + item.durationStr + ')' +
+                        '</div>' +
+                        '<button class="btn-secondary" style="padding: 6px 10px; font-size: 13px; margin-top: 8px; width: auto;" onclick="showReceiptHistory(' + i + ')">🧾 VER COMPROBANTE</button>';
+
+                    div.innerHTML = itemHtml;
+                    histContainer.appendChild(div);
+                }
+            }
+
+            document.getElementById('total-amount').innerText = formatMoney(totalAmount);
+            document.getElementById('summary-count').innerText = historyData.length;
+            document.getElementById('summary-total').innerText = formatMoney(totalAmount);
+
+            var summaryHtml = '';
+            for (var t = 1; t <= 4; t++) {
+                summaryHtml += '<div style="display:flex; justify-content:space-between; margin-bottom:4px;">' +
+                    '<span>Mesa ' + t + ':</span>' +
+                    '<strong>' + formatMoney(tableTotals[t]) + '</strong>' +
+                    '</div>';
+            }
+            document.getElementById('summary-tables').innerHTML = summaryHtml;
+        }
+
+        function showReceiptHistory(index) {
+            if (historyData[index]) {
+                showReceipt(historyData[index]);
+            }
+        }
+
+        function renderAll() {
+            renderTables();
+            renderHistoryAndSummary();
+            updateTimers();
+        }
+
+        loadStorage();
+        applyTheme();
+        renderAll();
+
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimers, 1000);
+    </script>
+</body>
+</html>
